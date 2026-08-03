@@ -379,7 +379,7 @@ body {
 
 .friends-panel {
   position: fixed;
-  bottom: 20px;
+  top: 150px;
   left: 20px;
   width: 260px;
   max-height: 340px;
