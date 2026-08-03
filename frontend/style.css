@@ -153,8 +153,8 @@ body {
 
 .history-tooltip {
   position: fixed;
-  top: 140px;
-  right: 74px;
+  bottom: 30px;
+  right: 130px;
   padding: 7px 12px;
   border-radius: var(--radius-sm);
   font-size: 12px;
