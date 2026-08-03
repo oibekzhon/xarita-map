@@ -171,7 +171,7 @@ body {
 
 .clock-panel {
   position: fixed;
-  top: 20 px;
+  top: 20px;
   left: 20px;
   padding: 14px 20px;
   border-radius: var(--radius-md);
@@ -380,7 +380,7 @@ body {
 .friends-panel {
   position: fixed;
   bottom: 20px;
-  left: 190px;
+  left: 20px;
   width: 260px;
   max-height: 340px;
   border-radius: var(--radius-md);

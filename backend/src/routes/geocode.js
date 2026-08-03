@@ -2,9 +2,7 @@ const express = require("express");
 const fetch = require("node-fetch");
 const router = express.Router();
 
-const NOMINATIM_HEADERS = {
-  "User-Agent": "XaritaObHavo/1.0 (contact: support@example.com)",
-};
+const LOCATIONIQ_BASE = "https://us1.locationiq.com/v1";
 
 // GET /api/geocode/search?q=Tashkent
 router.get("/search", async (req, res) => {
@@ -12,9 +10,16 @@ router.get("/search", async (req, res) => {
   if (q.length < 2) return res.json([]);
 
   try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&accept-language=uz`;
-    const r = await fetch(url, { headers: NOMINATIM_HEADERS });
+    const url = `${LOCATIONIQ_BASE}/search?key=${process.env.LOCATIONIQ_API_KEY}&q=${encodeURIComponent(q)}&format=json&limit=5&accept-language=uz`;
+    const r = await fetch(url);
     const data = await r.json();
+
+    if (!r.ok) {
+      // LocationIQ natija topilmasa 404 qaytaradi — bu xato emas, bo'sh ro'yxat
+      if (r.status === 404) return res.json([]);
+      return res.status(r.status).json({ error: data.error || "Qidiruvda xatolik." });
+    }
+
     res.json(data);
   } catch (err) {
     console.error("Geocode search xatosi:", err.message);
@@ -28,9 +33,14 @@ router.get("/reverse", async (req, res) => {
   if (!lat || !lon) return res.status(400).json({ error: "lat va lon kerak." });
 
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=uz`;
-    const r = await fetch(url, { headers: NOMINATIM_HEADERS });
+    const url = `${LOCATIONIQ_BASE}/reverse?key=${process.env.LOCATIONIQ_API_KEY}&lat=${lat}&lon=${lon}&format=json&accept-language=uz`;
+    const r = await fetch(url);
     const data = await r.json();
+
+    if (!r.ok) {
+      return res.status(r.status).json({ error: data.error || "Manzil aniqlanmadi." });
+    }
+
     res.json(data);
   } catch (err) {
     console.error("Reverse geocode xatosi:", err.message);
