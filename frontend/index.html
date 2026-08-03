@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ob-havo xaritasi</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    window.__BACKEND_URL__ = "http://localhost:5000";
+  </script>
+</head>
+
+<body>
+
+  <div id="map"></div>
+
+  <div class="search-bar glass">
+    <input type="text" id="searchInput" placeholder="Shahar, viloyat, davlat qidiring..." autocomplete="off" />
+    <button id="searchBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8" />
+        <path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+    </button>
+    <div class="search-results glass" id="searchResults"></div>
+  </div>
+
+  <button class="history-btn glass" id="historyBtn" title="Oldingi manzil">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M3.5 12A8.5 8.5 0 1 0 5.5 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M3.5 6.5V12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+  <div class="history-tooltip glass" id="historyTooltip"></div>
+
+  <button class="locate-btn glass" id="locateBtn" title="Mening joylashuvim">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2" />
+    </svg>
+  </button>
+
+  <div class="clock-panel glass" id="clockPanel">
+    <div class="clock-location" id="clockLocation">—</div>
+    <div class="clock-time" id="clockTime">- - : - - : - -</div>
+    <div class="clock-date" id="clockDate"></div>
+    <div class="clock-tz" id="clockTz"></div>
+  </div>
+
+  <div class="panel glass" id="panel">
+    <div class="panel-placeholder" id="placeholder">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="var(--text-dim)" stroke-width="1.2" />
+        <circle cx="12" cy="9" r="2.5" stroke="var(--text-dim)" stroke-width="1.2" />
+      </svg>
+      <p>Xaritadan joy tanlang</p>
+    </div>
+
+    <div class="weather-content" id="weatherContent" style="display:none;">
+      <div class="panel-top">
+        <div>
+          <h2 id="cityName">—</h2>
+          <p id="desc">—</p>
+        </div>
+        <p id="temp" class="temp-big">—</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid2">
+        <div class="stat">
+          <span class="stat-label">His qilinishi</span>
+          <span class="stat-value" id="feels-like">—</span>
+        </div>
+        <div class="stat align-right">
+          <span class="stat-label">Namlik</span>
+          <span class="stat-value" id="humidity">—</span>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="stat">
+          <span class="stat-label">Yo'nalish</span>
+          <span class="stat-value" id="wind-dir">—</span>
+        </div>
+        <div class="stat align-right">
+          <span class="stat-label">Shamol</span>
+          <span class="stat-value" id="wind-speed">—</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid2">
+        <div class="stat">
+          <span class="stat-label">Quyosh chiqishi</span>
+          <span class="stat-value" id="sunrise">—</span>
+        </div>
+        <div class="stat align-right">
+          <span class="stat-label">Quyosh botishi</span>
+          <span class="stat-value" id="sunset">—</span>
+        </div>
+      </div>
+
+      <div class="coords" id="coords"></div>
+
+      <button class="share-btn" id="shareBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.8" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        Ulashish
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal glass" id="shareModal">
+      <div class="modal-header">
+        <span class="modal-title">Ulashish</span>
+        <button class="modal-close" id="modalClose">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-url-row">
+        <span class="modal-url-text" id="modalUrlText"></span>
+        <button class="modal-copy-btn" id="modalCopyBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8" />
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="1.8" />
+          </svg>
+          <span id="copyBtnLabel">Nusxalash</span>
+        </button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-action-btn telegram" id="telegramBtn">
+          <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="24" fill="#152035" />
+            <path d="M34.5 14.8L10.8 23.9c-1.5.6-1.5 1.4-.3 1.8l6 1.9 13.9-8.8c.6-.4 1.2-.2.8.2L19.6 29.5l-.4 6.1c.6 0 .8-.3 1.1-.5l2.7-2.6 5.6 4.1c1 .6 1.8.3 2-.9l3.7-17.5c.4-1.4-.5-2-1.8-1.4z" fill="white" />
+          </svg>
+          Telegram
+        </button>
+
+        <button class="modal-action-btn whatsapp" id="whatsappBtn">
+          <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="24" fill="#25D366" />
+            <path d="M24 10.5C16.54 10.5 10.5 16.54 10.5 24c0 2.37.64 4.59 1.75 6.51L10.5 37.5l7.22-1.89A13.43 13.43 0 0024 37.5c7.46 0 13.5-6.04 13.5-13.5S31.46 10.5 24 10.5z" fill="white" />
+            <path d="M19.2 17.5c-.28-.64-.57-.65-.84-.66l-.71-.01c-.25 0-.65.09-.99.46-.34.37-1.31 1.28-1.31 3.12s1.34 3.62 1.53 3.87c.19.25 2.59 4.12 6.37 5.61 3.15 1.24 3.79.99 4.47.93.68-.06 2.2-.9 2.51-1.77.31-.86.31-1.6.22-1.76-.09-.15-.34-.24-.72-.43-.38-.18-2.2-1.09-2.54-1.21-.34-.12-.59-.18-.84.18-.25.37-.96 1.21-1.18 1.46-.21.24-.43.27-.81.09-.38-.18-1.6-.59-3.05-1.88a10.14 10.14 0 01-2.11-2.62c-.22-.37-.02-.57.16-.75.17-.17.38-.43.56-.65.19-.21.25-.37.37-.62.12-.24.06-.46-.03-.65-.09-.18-.81-2.03-1.13-2.77z" fill="#25D366" />
+          </svg>
+          WhatsApp
+        </button>
+
+        <button class="modal-action-btn email" id="emailBtn">
+          <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="24" fill="#48484a" />
+            <rect x="11" y="16" width="26" height="18" rx="3" stroke="white" stroke-width="2" fill="none" />
+            <path d="M11 19l13 9 13-9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading glass" id="loading" style="display:none;">
+    <div class="spinner"></div>
+    <span>Yuklanmoqda...</span>
+  </div>
+
+  <div class="auth-panel glass" id="authPanel">
+    <div class="auth-avatar" id="authAvatar"></div>
+    <div class="auth-info">
+      <span class="auth-name" id="authName">Akkaunt</span>
+    </div>
+    <button class="auth-btn" id="authBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span id="authBtnLabel">Kirish</span>
+    </button>
+  </div>
+
+  <div class="friends-panel glass" id="friendsPanel" style="display:none;">
+    <div class="friends-header">
+      <span class="friends-title">Do'stlar</span>
+      <button class="friends-add-btn" id="friendsAddBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        Qo'shish
+      </button>
+    </div>
+    <div class="friends-list" id="friendsList">
+      <div class="friends-empty">Hali do'stlar yo'q</div>
+    </div>
+    <div class="requests-section" id="requestsSection" style="display:none;">
+      <div class="requests-title">Kelgan so'rovlar</div>
+      <div class="requests-list" id="requestsList"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="addFriendBackdrop">
+    <div class="modal glass" id="addFriendModal">
+      <div class="modal-header">
+        <span class="modal-title">Do'st qo'shish</span>
+        <button class="modal-close" id="addFriendClose">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="add-friend-body">
+        <input type="text" id="friendNicknameInput" placeholder="Do'stingizning nickname..." class="friend-email-input" />
+        <button class="friend-search-btn" id="friendSearchBtn">Qidirish</button>
+        <div class="friend-search-result" id="friendSearchResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="nicknameBackdrop">
+    <div class="modal glass" id="nicknameModal">
+      <div class="modal-header">
+        <span class="modal-title">Nickname tanlang</span>
+      </div>
+      <div class="add-friend-body">
+        <p class="nickname-desc">Boshqa foydalanuvchilar siz bilan shu nickname orqali do'st bo'la oladi.</p>
+        <div class="nickname-input-row">
+          <input type="text" id="nicknameInput" placeholder="masalan: name_nike" class="friend-email-input" maxlength="20" />
+          <div class="nickname-status" id="nicknameStatus"></div>
+        </div>
+        <button class="friend-search-btn" id="nicknameSaveBtn" disabled>Saqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="loginWarningBackdrop">
+    <div class="modal glass login-warning-modal" id="loginWarningModal">
+      <div class="lw-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="1.5" />
+          <path d="M12 8v4M12 16h.01" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </div>
+      <h2 class="lw-title">Kirishdan oldin o'qing</h2>
+
+      <div class="lw-items">
+        <div class="lw-item">
+          <div class="lw-item-icon">📌</div>
+          <div class="lw-item-text">
+            <span class="lw-item-title">Joylashuvingiz ko'rinadi</span>
+            <span class="lw-item-desc">Xaritada joy tanlaganingizda do'stlaringiz sizning qayerda ekaningizni real vaqtda ko'ra oladi.</span>
+          </div>
+        </div>
+        <div class="lw-item">
+          <div class="lw-item-icon">👤</div>
+          <div class="lw-item-text">
+            <span class="lw-item-title">Profil ma'lumotlari saqlanadi</span>
+            <span class="lw-item-desc">Google akkauntingizdan ism va profil rasmi olinadi. Bu ma'lumotlar do'stlaringizga ko'rinadi.</span>
+          </div>
+        </div>
+        <div class="lw-item">
+          <div class="lw-item-icon">🔒</div>
+          <div class="lw-item-text">
+            <span class="lw-item-title">Faqat do'stlar ko'radi</span>
+            <span class="lw-item-desc">Joylashuvingiz faqat siz do'st qilib qo'shgan odamlarga ko'rinadi. Begonalar sizni kuzata olmaydi.</span>
+          </div>
+        </div>
+        <div class="lw-item">
+          <div class="lw-item-icon">✋</div>
+          <div class="lw-item-text">
+            <span class="lw-item-title">O'zingiz nazorat qilasiz</span>
+            <span class="lw-item-desc">Istalgan vaqt hisobingizdan chiqib, joylashuvingiz ko'rsatilishini to'xtatishingiz mumkin.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lw-actions">
+        <button class="lw-cancel-btn" id="lwCancelBtn">Bekor qilish</button>
+        <button class="lw-confirm-btn" id="lwConfirmBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor" opacity="0.9" />
+          </svg>
+          Roziman, kirish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

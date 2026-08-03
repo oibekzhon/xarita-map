@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// Firebase Console > Firestore Database > Rules bo'limiga shu qoidalarni joylashtiring.
+// Bu qoidalar client tomondan to'g'ridan-to'g'ri Firestore'ga yoziladigan
+// harakatlarni cheklaydi. Bloklash/o'chirish kabi og'ir amallar backend
+// (Firebase Admin SDK) orqali bajariladi va bu qoidalarni chetlab o'tadi.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Har bir foydalanuvchi faqat o'z hujjatini o'qiy/yoza oladi.
+    // "blocked" maydonini faqat backend (Admin SDK) o'zgartiradi — buni
+    // Cloud Function orqali qat'iy nazorat qilish tavsiya etiladi.
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid)
+                    && !("blocked" in request.resource.data.diff(resource.data).affectedKeys());
+      allow delete: if false; // faqat backend Admin SDK orqali
+    }
+
+    match /nicknames/{nickname} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow delete: if false; // faqat backend
+      allow update: if false;
+    }
+
+    match /friendRequests/{reqId} {
+      allow read: if isSignedIn() &&
+        (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.from == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.to == request.auth.uid;
+      allow delete: if isSignedIn() &&
+        (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+
+    match /friends/{docId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.users;
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.users;
+      allow delete: if isSignedIn() && request.auth.uid in resource.data.users;
+      allow update: if false;
+    }
+  }
+}
