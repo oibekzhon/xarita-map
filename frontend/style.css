@@ -189,7 +189,6 @@ body {
   position: fixed;
   top: 20px;
   right: 20px;
-  /* bottom: 20px; */
   width: 340px;
   border-radius: var(--radius-lg);
   z-index: 15;
