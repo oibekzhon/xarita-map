@@ -51,7 +51,7 @@ function bootApp() {
   if (appReady) return;
   appReady = true;
 
-  map = L.map("map", { center: [41.2, 63.5], zoom: 6, zoomControl: true });
+  map = L.map("map", { center: [41.2, 63.5], zoom: 6, zoomControl: false });
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
